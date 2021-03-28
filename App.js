@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Image, Picker } from 'react-native';
 import { Images, Colors, Metrics } from './App/Themes'
 import APIRequest from './App/Config/APIRequest'
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { human } from 'react-native-typography'
 import { Ionicons } from '@expo/vector-icons';
+import { CheckBox } from 'react-native-elements'
 
 
 import Plants from './App/Components/Plants'
@@ -20,23 +21,23 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          tabBarIcon: ({focused, color, size}) => {
+          tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
             if (route.name === "Plants") {
               iconName = focused ? 'home' : 'home-outline';
             } else if (route.name === "Settings") {
               iconName = focused ? 'settings' : 'settings-outline';
-            } 
+            }
             return <Ionicons name={iconName} size={size} color={color} />
           }
         })
-      }
-      tabBarOptions={{
-        labelStyle: { fontSize: 20 },
-        activeTintColor: 'blue',
-        inactiveTintColor: 'gray',
-      }}
+        }
+        tabBarOptions={{
+          labelStyle: { fontSize: 20 },
+          activeTintColor: 'blue',
+          inactiveTintColor: 'gray',
+        }}
       >
         <Tab.Screen name="Plants" component={PlantStack} />
         <Tab.Screen name="Settings" component={SettingsTab} />
@@ -150,27 +151,62 @@ function DetailsScreen({ route, navigation }) {
 //Settings Tab
 function SettingsTab({ route, navigation }) {
   const [wantVegitables, setwantVegitables] = useState(false);
+  const [wantEdible, setWantEdible] = useState(false);
+  const [flowerColor, setFlowerColor] = useState('');
+  const [fruitColor, setFruitColor] = useState('');
 
   return (
     <SafeAreaView style={styles.container}>
       <View>
         <Text>Want to See Vegitables?</Text>
+        <CheckBox
+          title='Yes'
+          checked={wantVegitables}
+          onIconPress={() => setwantVegitables(!wantVegitables)}
+        />
       </View>
       <View>
         <Text>Want to See Edible Plants?</Text>
+        <CheckBox
+          title='Yes'
+          checked={wantEdible}
+          onIconPress={() => setWantEdible(!wantEdible)}
+        />
       </View>
       <View>
         <Text>Please Select a Flower Color</Text>
+        <Picker
+          selectedValue={flowerColor}
+          onValueChange={(itemValue, itemIndex) => setFlowerColor(itemValue)}
+          style={{ borderWidth: 1 }}
+        >
+          <Picker.Item label="Red" value="red" />
+          <Picker.Item label="Blue" value="blue" />
+          <Picker.Item label="Green" value="green" />
+          <Picker.Item label="Yellow" value="yellow" />
+          <Picker.Item label="White" value="white" />
+          <Picker.Item label="Black" value="black" />
+          <Picker.Item label="Purple" value="purple" />
+        </Picker>
       </View>
       <View>
         <Text>Please Select a Fruit Color</Text>
+        <Picker
+          selectedValue={fruitColor}
+          style={{ borderWidth: 1 }}
+          onValueChange={(itemValue, itemIndex) => setFruitColor(itemValue)}
+        >
+          <Picker.Item label="Red" value="red" />
+          <Picker.Item label="Blue" value="blue" />
+          <Picker.Item label="Green" value="green" />
+          <Picker.Item label="Yellow" value="yellow" />
+          <Picker.Item label="White" value="white" />
+          <Picker.Item label="Black" value="black" />
+          <Picker.Item label="Purple" value="purple" />
+        </Picker>
       </View>
     </SafeAreaView>
   );
-  //Checkbox for filter Vegetable
-  //Checkbox for filter Edible
-  //Picker for Flower Color
-  //Drop down list for Fruit Color
 }
 
 const styles = StyleSheet.create({
