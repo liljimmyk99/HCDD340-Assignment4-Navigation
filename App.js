@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Image, Picker } from 'react-native';
 import { Images, Colors, Metrics } from './App/Themes'
 import APIRequest from './App/Config/APIRequest'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -150,10 +151,104 @@ function DetailsScreen({ route, navigation }) {
 
 //Settings Tab
 function SettingsTab({ route, navigation }) {
-  const [wantVegitables, setwantVegitables] = useState(false);
+
+  //Use States
+  const [wantVegitables, setWantVegitables] = useState(false);
   const [wantEdible, setWantEdible] = useState(false);
   const [flowerColor, setFlowerColor] = useState('');
   const [fruitColor, setFruitColor] = useState('');
+  const [preferences, setPreferences] = useState([])
+
+
+
+  //Storage
+  const setPreferencesFromStorage = (todos_string) => {
+    setPreferences(JSON.parse(todos_string));
+  }
+
+  const saveWantVegitables = async (newValue) => {
+    setWantVegitables(newValue)
+    console.log("Vegitables: " + newValue)
+
+    setPreferences([newValue, wantEdible, flowerColor, fruitColor])
+    console.log("Preferences: " + preferences)
+    try {
+      await AsyncStorage.setItem('preferences', JSON.stringify(preferences))
+    } catch (e) {
+      console.error(e)
+    }
+    console.log("done")
+  }
+
+  const saveWantEdible = async (newValue) => {
+    setWantEdible(newValue)
+    console.log("Edible: " + newValue)
+
+    setPreferences([wantVegitables, newValue, flowerColor, fruitColor])
+    console.log("Preferences: " + preferences)
+    try {
+      await AsyncStorage.setItem('preferences', JSON.stringify(preferences))
+    } catch (e) {
+      console.error(e)
+    }
+    console.log("done")
+  }
+
+  const saveFlowerColor = async (newValue) => {
+    setFlowerColor(newValue)
+    console.log("Edible: " + newValue)
+
+    setPreferences([wantVegitables, wantEdible, newValue, fruitColor])
+    console.log("Preferences: " + preferences)
+    try {
+      await AsyncStorage.setItem('preferences', JSON.stringify(preferences))
+    } catch (e) {
+      console.error(e)
+    }
+    console.log("done")
+  }
+
+  const saveFruitColor = async (newValue) => {
+    setFruitColor(newValue)
+    console.log("Edible: " + newValue)
+
+    setPreferences([wantVegitables, wantEdible, flowerColor, newValue])
+    console.log("Preferences: " + preferences)
+    try {
+      await AsyncStorage.setItem('preferences', JSON.stringify(preferences))
+    } catch (e) {
+      console.error(e)
+    }
+    console.log("done")
+  }
+
+
+
+  const readPreferences = async () => {
+    console.log("readPreferences")
+    try {
+      const storage_preferences = await AsyncStorage.getItem('preferences');
+      if (storage_preferences !== null) {
+        console.log("Stored Preferences: " + storage_preferences)
+        setPreferencesFromStorage(storage_preferences);
+        //Destructure Preference Ob
+        const {wantVegitables, wantEdible, flowerColor, fruitColor} = preferences 
+        console.log("wantVegitables: " + wantVegitables + " wantEdible: " + wantEdible + " flowerColor: " + flowerColor + " fruitColor: " + fruitColor)
+        setWantVegitables(wantVegitables)
+        setWantEdible(wantEdible)
+        setFlowerColor(flowerColor)
+        setFruitColor(fruitColor)
+      }
+    } catch (e) {
+      console.error(e);
+    }
+     console.log("Preferences: " + preferences)
+  }
+
+  useEffect(() => {
+    readPreferences();
+  }, [])
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -162,7 +257,7 @@ function SettingsTab({ route, navigation }) {
         <CheckBox
           title='Yes'
           checked={wantVegitables}
-          onIconPress={() => setwantVegitables(!wantVegitables)}
+          onIconPress={() => saveWantVegitables(!wantVegitables)}
         />
       </View>
       <View>
@@ -170,14 +265,14 @@ function SettingsTab({ route, navigation }) {
         <CheckBox
           title='Yes'
           checked={wantEdible}
-          onIconPress={() => setWantEdible(!wantEdible)}
+          onIconPress={() => saveWantEdible(!wantEdible)}
         />
       </View>
       <View>
         <Text>Please Select a Flower Color</Text>
         <Picker
           selectedValue={flowerColor}
-          onValueChange={(itemValue, itemIndex) => setFlowerColor(itemValue)}
+          onValueChange={(itemValue, itemIndex) => saveFlowerColor(itemValue)}
           style={{ borderWidth: 1 }}
         >
           <Picker.Item label="Red" value="red" />
@@ -194,7 +289,7 @@ function SettingsTab({ route, navigation }) {
         <Picker
           selectedValue={fruitColor}
           style={{ borderWidth: 1 }}
-          onValueChange={(itemValue, itemIndex) => setFruitColor(itemValue)}
+          onValueChange={(itemValue, itemIndex) => saveFruitColor(itemValue)}
         >
           <Picker.Item label="Red" value="red" />
           <Picker.Item label="Blue" value="blue" />
@@ -208,6 +303,7 @@ function SettingsTab({ route, navigation }) {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
